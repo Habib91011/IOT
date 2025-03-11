@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פתיחת דלת חכמה</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        input {
+            padding: 10px;
+            font-size: 18px;
+            margin: 10px;
+            width: 200px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>הזן את הסיסמה לפתיחת הדלת</h1>
+
+    <form action="/unlock" method="GET">
+        <input type="text" name="password" placeholder="הכנס קוד בן 4 ספרות" required maxlength="4" />
+        <br />
+        <button type="submit">פתח דלת</button>
+    </form>
+
+    <div class="message" id="responseMessage"></div>
+
+    <script>
+        // פונקציה להצגת הודעה לאחר שליחה
+        function showMessage(message) {
+            document.getElementById("responseMessage").textContent = message;
+        }
+
+        // אם הסיסמה שגויה, הצג הודעת שגיאה
+        if (window.location.search.includes("error")) {
+            showMessage("סיסמה שגויה! נסה שנית.");
+        }
+    </script>
+
+</body>
+</html>
+
