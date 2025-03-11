@@ -1,0 +1,108 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <DHT.h>
+
+#define DHTPIN D2  // Pin connected to DHT sensor
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+
+const char* ssid = "YOUR_SSID";
+const char* password = "YOUR_PASSWORD";
+
+ESP8266WebServer server(80);
+
+bool puzzle1Solved = false;
+bool puzzle2Solved = false;
+bool puzzle3Solved = false;
+bool puzzle4Solved = false;
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  dht.begin();
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
+
+  // Web server for puzzle control
+  server.on("/", HTTP_GET, handleRoot);
+  server.on("/solvePuzzle1", HTTP_GET, solvePuzzle1);
+  server.on("/solvePuzzle2", HTTP_GET, solvePuzzle2);
+  server.on("/solvePuzzle3", HTTP_GET, solvePuzzle3);
+  server.on("/solvePuzzle4", HTTP_GET, solvePuzzle4);
+
+  server.begin();
+}
+
+void loop() {
+  server.handleClient();
+}
+
+void handleRoot() {
+  String html = "<html><body>";
+  html += "<h1>Puzzle Game</h1>";
+  
+  if (!puzzle1Solved) {
+    html += "<form action='/solvePuzzle1' method='GET'><button type='submit'>Solve Puzzle 1</button></form>";
+  }
+  if (!puzzle2Solved) {
+    html += "<form action='/solvePuzzle2' method='GET'><button type='submit'>Solve Puzzle 2</button></form>";
+  }
+  if (!puzzle3Solved) {
+    html += "<form action='/solvePuzzle3' method='GET'><button type='submit'>Solve Puzzle 3</button></form>";
+  }
+  if (!puzzle4Solved) {
+    html += "<form action='/solvePuzzle4' method='GET'><button type='submit'>Solve Puzzle 4</button></form>";
+  }
+
+  html += "</body></html>";
+  server.send(200, "text/html", html);
+}
+
+void solvePuzzle1() {
+  // Puzzle 1 logic (light control)
+  puzzle1Solved = true;
+  sendDigitToLock(1);
+  server.send(200, "text/html", "<h1>Puzzle 1 Solved!</h1>");
+}
+
+void solvePuzzle2() {
+  // Puzzle 2 logic (temperature control)
+  float temperature = dht.readTemperature();
+  if (temperature > 25) {
+    puzzle2Solved = true;
+    sendDigitToLock(2);
+    server.send(200, "text/html", "<h1>Puzzle 2 Solved!</h1>");
+  } else {
+    server.send(200, "text/html", "<h1>Temperature is too low!</h1>");
+  }
+}
+
+void solvePuzzle3() {
+  // Puzzle 3 logic (LED blinking sequence)
+  puzzle3Solved = true;
+  sendDigitToLock(3);
+  server.send(200, "text/html", "<h1>Puzzle 3 Solved!</h1>");
+}
+
+void solvePuzzle4() {
+  // Puzzle 4 logic (distance sensing)
+  puzzle4Solved = true;
+  sendDigitToLock(4);
+  server.send(200, "text/html", "<h1>Puzzle 4 Solved!</h1>");
+}
+
+void sendDigitToLock(int digit) {
+  WiFiClient client;
+  if (client.connect("LOCK_CONTROLLER_IP", 80)) {
+    client.print("GET /updateDigit?digit=");
+    client.print(digit);
+    client.println(" HTTP/1.1");
+    client.println("Host: LOCK_CONTROLLER_IP");
+    client.println("Connection: close");
+    client.println();
+  }
+}
