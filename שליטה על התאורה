@@ -1,0 +1,15 @@
+const int lightPin = D1;  // Pin controlling light
+int lightIntensity = 1023; // Full brightness (PWM value)
+
+void setup() {
+  pinMode(lightPin, OUTPUT);
+}
+
+void loop() {
+  if (puzzle1Solved) {
+    analogWrite(lightPin, lightIntensity * 0.8);  // Reduce brightness by 20%
+    delay(2000);  // Keep the light dimmed for 2 seconds
+    puzzle1Solved = true;
+    // Send first digit to the lock controller
+  }
+}
