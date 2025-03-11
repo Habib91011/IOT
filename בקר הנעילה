@@ -1,0 +1,69 @@
+#include <ESP8266WiFi.h>
+#include <ESP8266WebServer.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_7segment.h>
+
+const char* ssid = "YOUR_SSID";
+const char* password = "YOUR_PASSWORD";
+
+// 7-Segment Display Pins
+const int pinA = D1, pinB = D2, pinC = D3, pinD = D4, pinE = D5, pinF = D6, pinG = D7, pinDP = D8;
+Adafruit_7segment matrix = Adafruit_7segment();
+
+// Variables for lock and password
+const int lockPin = D0;  // Pin to control lock
+String password = "1234";  
+
+ESP8266WebServer server(80);
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin(ssid, password);
+  matrix.begin();
+  
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+    Serial.println("Connecting to WiFi...");
+  }
+  Serial.println("Connected to WiFi");
+
+  pinMode(lockPin, OUTPUT);
+  digitalWrite(lockPin, LOW);  // Start with lock closed
+  
+  // Web server for entering password
+  server.on("/", HTTP_GET, handleRoot);
+  server.on("/unlock", HTTP_GET, unlockDoor);
+
+  server.begin();
+}
+
+void loop() {
+  server.handleClient();
+}
+
+void handleRoot() {
+  String html = "<html><body>";
+  html += "<h1>Enter the Password to Unlock</h1>";
+  html += "<form action='/unlock' method='GET'>";
+  html += "<input type='text' name='password' placeholder='Enter 4-digit code' required>";
+  html += "<button type='submit'>Unlock</button>";
+  html += "</form></body></html>";
+  server.send(200, "text/html", html);
+}
+
+void unlockDoor() {
+  String enteredPassword = server.arg("password");
+  
+  if (enteredPassword == password) {
+    digitalWrite(lockPin, HIGH);  // Unlock the door
+    matrix.print("OPEN");
+    delay(2000);
+    matrix.clear();
+    server.send(200, "text/html", "<h1>Door Unlocked!</h1>");
+  } else {
+    matrix.print("ERR");
+    delay(2000);
+    matrix.clear();
+    server.send(200, "text/html", "<h1>Incorrect Password!</h1>");
+  }
+}
