@@ -1,0 +1,30 @@
+#include <DHT.h>
+
+#define DHTPIN D2
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+
+const int fanPin = D3;  // Pin controlling fan
+
+float currentTemp = 0;
+
+void setup() {
+  pinMode(fanPin, OUTPUT);
+  dht.begin();
+}
+
+void loop() {
+  if (puzzle1Solved) {
+    currentTemp = dht.readTemperature();
+    if (currentTemp > 25) {
+      digitalWrite(fanPin, HIGH);  // Turn on fan
+      delay(2000);  // Wait for 2 seconds
+      float newTemp = dht.readTemperature();
+      if (newTemp < currentTemp - 2) {
+        puzzle2Solved = true;
+        // Send second digit to the lock controller
+      }
+    }
+  }
+}
+
