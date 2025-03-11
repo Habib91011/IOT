@@ -1,0 +1,30 @@
+#define trigPin D8
+#define echoPin D9
+
+long duration;
+int distance;
+
+void setup() {
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+void loop() {
+  if (puzzle3Solved) {
+    // Send pulse to trigger pin
+    digitalWrite(trigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+
+    duration = pulseIn(echoPin, HIGH);
+    distance = duration * 0.034 / 2;  // Calculate distance in cm
+
+    if (distance == 20) {
+      delay(2000);  
+      puzzle4Solved = true;
+      // Send fourth digit to the lock controller
+    }
+  }
+}
