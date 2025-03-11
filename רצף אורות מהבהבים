@@ -1,0 +1,27 @@
+const int ledPins[] = {D4, D5, D6, D7};  // LED pins
+int ledOrder[4];  // Store the random order of LEDs
+
+void setup() {
+  for (int i = 0; i < 4; i++) {
+    pinMode(ledPins[i], OUTPUT);
+  }
+}
+
+void loop() {
+  if (puzzle2Solved) {
+    randomSeed(analogRead(A0));  // Seed random number generator
+    for (int i = 0; i < 4; i++) {
+      ledOrder[i] = random(0, 4);  // Generate random order
+    }
+    for (int i = 0; i < 8; i++) {
+      int ledIndex = ledOrder[i % 4];  // Loop through the random order
+      digitalWrite(ledPins[ledIndex], HIGH);
+      delay(500);
+      digitalWrite(ledPins[ledIndex], LOW);
+      delay(500);
+    }
+    puzzle3Solved = true;
+    // Send third digit to the lock controller
+  }
+}
+
